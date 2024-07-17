@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/VentureVerse
+#    url: jdbc:postgresql://localhost:5432/VentureVerse
+    url: jdbc:postgresql://fof-db-instance.cje2oyww8aqv.eu-north-1.rds.amazonaws.com:5432/fof_initial
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
