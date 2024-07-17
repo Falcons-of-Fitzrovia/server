@@ -1,0 +1,47 @@
+spring:
+#  datasource:
+##    url: jdbc:postgresql://localhost:5432/VentureVerse
+##    url: jdbc:postgresql://database-1.ccjiqcskt4z6.eu-north-1.rds.amazonaws.com:5432/VentureVerse
+#    username: postgres
+#    password: password
+#    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 465
+    username: ab0d841f1ed7e0
+    password: 3acbc47c370a58
+
+    properties:
+      mail:
+        smtp:
+          ssl:
+            trust: "*"
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
+application:
+  security:
+    jwt:
+      secrete-key: 69586F57334D6A62424C714945525A564733563936466B42546E785A67547074
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
+      forgot-password-token:
+        expiration: 3600000
