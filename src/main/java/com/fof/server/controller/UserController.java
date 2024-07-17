@@ -25,13 +25,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getDetails(id));
     }
 
-    @GetMapping("/chat/{id}")
-    public ResponseEntity<List<DetailsDTO>> getChats(
-            @PathVariable Integer id
-    ) {
-        return ResponseEntity.ok(userService.getChats(id));
-    }
-
     @GetMapping("/profileImage/{id}")
     public ResponseEntity<byte []> getImage(
             @PathVariable Integer id
@@ -65,15 +58,5 @@ public class UserController {
         }
         return ResponseEntity.ok(users);
     }
-
-    @GetMapping("/getTopcomplains")
-    public ResponseEntity<List<Map<String, String>>> getTopcomplains() {
-        List<Map<String, String>> users = userService.getTopcomplains();
-        if (users.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(users);
-    }
-
 
 }

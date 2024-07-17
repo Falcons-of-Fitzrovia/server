@@ -14,9 +14,6 @@ import com.fof.server.repository.*;
 import com.fof.server.config.JwtService;
 import com.fof.server.enumeration.Chat;
 import com.fof.server.enumeration.Status;
-import com.ventureverse.server.model.entity.*;
-import com.ventureverse.server.model.normal.*;
-import com.ventureverse.server.repository.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,9 +45,6 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
-    private final EnterpriseInvestorRepository enterpriseInvestorRepository;
-    private final IndividualInvestorRepository individualInvestorRepository;
-    private final EntrepreneurRepository entrepreneurRepository;
     private final CredentialRepository credentialRepository;
 
     public ResponseDTO checkEmail(String email) {
@@ -70,15 +64,6 @@ public class AuthenticationService {
             else{
                 return GlobalService.response("Error", "Email Already Exists");
             }
-        } else {
-            return GlobalService.response("Success", "Email Available");
-        }
-    }
-
-    public ResponseDTO checkBusinessEmail(String email) {
-        var user = entrepreneurRepository.findByBusinessEmail(email);
-        if (user.isPresent()) {
-            return GlobalService.response("Error", "Email Already Exists");
         } else {
             return GlobalService.response("Success", "Email Available");
         }
@@ -120,144 +105,6 @@ public class AuthenticationService {
         saveUserToken(savedUser, accessToken);
 
         return GlobalService.response("Success", "Co-Admin Registration Successful");
-
-    }
-
-    public ResponseDTO registerEntrepreneur(RegisterRequestDTO registerRequestDTO) {
-
-        // Generate a Random Salt
-        var salt = GlobalService.generateSalt();
-
-        var user = EntrepreneurDTO.builder()
-                .email(registerRequestDTO.getEmail())
-                .approvalStatus(Status.PENDING)
-                .profileImage("profileImage.jpg")
-                .contactNumber(registerRequestDTO.getContactNumber())
-                .firstLineAddress(registerRequestDTO.getFirstLineAddress())
-                .secondLineAddress(registerRequestDTO.getSecondLineAddress())
-                .town(registerRequestDTO.getTown())
-                .district(registerRequestDTO.getDistrict())
-                .role(Role.ENTREPRENEUR)
-                .firstname(registerRequestDTO.getFirstname())
-                .lastname(registerRequestDTO.getLastname())
-                .gender(registerRequestDTO.getGender())
-                .nic(registerRequestDTO.getNic())
-                .policeReport(registerRequestDTO.getPoliceReport())
-                .incomeStatement(registerRequestDTO.getIncomeStatement())
-                .collaboratorDetails(registerRequestDTO.getCollaboratorDetails())
-                .felony(registerRequestDTO.getFelony())
-                .lawSuit(registerRequestDTO.getLawSuit())
-                .felonyDescription(registerRequestDTO.getFelonyDescription())
-                .businessName(registerRequestDTO.getBusinessName())
-                .businessContact(registerRequestDTO.getBusinessContact())
-                .bfirstLineAddress(registerRequestDTO.getBfirstLineAddress())
-                .bsecondLineAddress(registerRequestDTO.getBsecondLineAddress())
-                .btown(registerRequestDTO.getBtown())
-                .bdistrict(registerRequestDTO.getBdistrict())
-                .businessWebsite(registerRequestDTO.getBusinessWebsite())
-                .businessEmail(registerRequestDTO.getBusinessEmail())
-                .businessDescription(registerRequestDTO.getBusinessDescription())
-                .businessRegDoc(registerRequestDTO.getBusinessRegDoc())
-                .build(); // Creates EntrepreneurDTO
-
-        var savedUser = entrepreneurRepository.save(user); // Save the Record
-
-        var credentials = CredentialDTO.builder()
-                .user(savedUser)
-                .username(savedUser.getEmail())
-                .password(passwordEncoder.encode(GlobalService.generateSaltedPassword(registerRequestDTO.getPassword(), salt)))
-                .salt(salt)
-                .build(); // Creates CredentialsDTO
-
-        credentialRepository.save(credentials); // Save the Record
-
-        return GlobalService.response("Success", "Registration request sent");
-    }
-
-    public ResponseDTO registerIndividualInvestor(RegisterRequestDTO registerRequestDTO){
-        // Generate a Random Salt
-        var salt = GlobalService.generateSalt();
-
-        var user= IndividualInvestorDTO.builder()
-                .email(registerRequestDTO.getEmail())
-                .approvalStatus(Status.PENDING)
-                .profileImage("profileImage.jpg")
-                .contactNumber(registerRequestDTO.getContactNumber())
-                .firstLineAddress(registerRequestDTO.getFirstLineAddress())
-                .secondLineAddress(registerRequestDTO.getSecondLineAddress())
-                .town(registerRequestDTO.getTown())
-                .district(registerRequestDTO.getDistrict())
-                .role(Role.INDIVIDUAL_INVESTOR)
-                .financialDocument(registerRequestDTO.getFinancialDocument())
-                .badgeId(null)
-                .firstname(registerRequestDTO.getFirstname())
-                .lastname(registerRequestDTO.getLastname())
-                .gender(registerRequestDTO.getGender())
-                .nic(registerRequestDTO.getNic())
-                .policeReport(registerRequestDTO.getPoliceReport())
-                .build(); // Creates IndividualInvestorDTO
-
-        var savedUser = individualInvestorRepository.save(user); // Save the Record
-
-        var credentials = CredentialDTO.builder()
-                .user(savedUser)
-                .username(savedUser.getEmail())
-                .password(passwordEncoder.encode(GlobalService.generateSaltedPassword(registerRequestDTO.getPassword(), salt)))
-                .salt(salt)
-                .build(); // Creates CredentialsDTO
-
-        credentialRepository.save(credentials); // Save the Record
-
-        var investor=individualInvestorRepository.getLastInsertedId();
-        var listingSectors=registerRequestDTO.getSectorId();
-
-        for (Integer sectorId:listingSectors){
-            individualInvestorRepository.saveInvestorSector(investor,sectorId);
-        }
-
-
-        return GlobalService.response("Success", "Registration request sent");
-    }
-
-    public ResponseDTO registerEnterpriseInvestor(RegisterRequestDTO registerRequestDTO){
-        var salt = GlobalService.generateSalt();
-
-        var user= EnterpriseInvestorDTO.builder()
-                .email(registerRequestDTO.getEmail())
-                .approvalStatus(Status.PENDING)
-                .profileImage("profileImage.jpg")
-                .contactNumber(registerRequestDTO.getContactNumber())
-                .firstLineAddress(registerRequestDTO.getFirstLineAddress())
-                .secondLineAddress(registerRequestDTO.getSecondLineAddress())
-                .town(registerRequestDTO.getTown())
-                .district(registerRequestDTO.getDistrict())
-                .role(Role.ENTERPRISE_INVESTOR)
-                .businessRegistration(registerRequestDTO.getBusinessRegistration())
-                .businessName(registerRequestDTO.getBusinessName())
-                .financialDocument(registerRequestDTO.getFinancialDocument())
-                .badgeId(null)
-                .build();
-
-        var savedUser = enterpriseInvestorRepository.save(user); // Save the Record
-
-        var credentials = CredentialDTO.builder()
-                .user(savedUser)
-                .username(savedUser.getEmail())
-                .password(passwordEncoder.encode(GlobalService.generateSaltedPassword(registerRequestDTO.getPassword(), salt)))
-                .salt(salt)
-                .build(); // Creates CredentialsDTO
-
-        credentialRepository.save(credentials); // Save the Record
-
-        //get the last inserted id
-        var investor= enterpriseInvestorRepository.getLastInsertedId();
-        var listingSectors=registerRequestDTO.getSectorId();
-
-        for (Integer sectorId:listingSectors){
-            enterpriseInvestorRepository.saveInvestorSector(investor,sectorId);
-        }
-
-        return GlobalService.response("Success", "Registration request sent");
 
     }
 

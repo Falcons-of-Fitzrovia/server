@@ -33,6 +33,7 @@ public class AuthenticationController {
 
     @GetMapping("/checkEmail/{email}")
     public ResponseEntity<ResponseDTO> checkEmail(@PathVariable String email) {
+        System.out.println(email);
         return ResponseEntity.ok(authenticationService.checkEmail(email));
     }
 
@@ -41,38 +42,11 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.checkEmailforId(email,id));
     }
 
-
-    @GetMapping("checkBusinessEmail/{email}")
-    public ResponseEntity<ResponseDTO> checkBusinessEmail(@PathVariable String email) {
-        return ResponseEntity.ok(authenticationService.checkBusinessEmail(email));
-    }
-
     @PostMapping("/register/admin")
     public ResponseEntity<ResponseDTO> register(
             @RequestBody RegisterRequestDTO registerRequestDTO
     ) {
         return ResponseEntity.ok(authenticationService.registerAdmin(registerRequestDTO));
-    }
-
-    @PostMapping("/register/entrepreneur")
-    public ResponseEntity<ResponseDTO> registerEntrepreneur(
-            @RequestBody RegisterRequestDTO registerRequestDTO
-    ) {
-        return ResponseEntity.ok(authenticationService.registerEntrepreneur(registerRequestDTO));
-    }
-
-    @PostMapping("/register/individualInvestor")
-    public ResponseEntity<ResponseDTO> registerIndividualInvestor(
-            @RequestBody RegisterRequestDTO registerRequestDTO
-    ) {
-        return ResponseEntity.ok(authenticationService.registerIndividualInvestor(registerRequestDTO));
-    }
-
-    @PostMapping("/register/enterpriseInvestor")
-    public ResponseEntity<ResponseDTO> registerEnterpriseInvestor(
-            @RequestBody RegisterRequestDTO registerRequestDTO
-    ) {
-        return ResponseEntity.ok(authenticationService.registerEnterpriseInvestor(registerRequestDTO));
     }
 
     @PostMapping("/authorize/{status}/{id}")

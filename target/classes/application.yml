@@ -1,7 +1,6 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/VentureVerse
-#    url: jdbc:postgresql://database-1.ccjiqcskt4z6.eu-north-1.rds.amazonaws.com:5432/VentureVerse
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver

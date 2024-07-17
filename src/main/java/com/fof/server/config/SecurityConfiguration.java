@@ -22,19 +22,18 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf()
-                .disable()
-                .authorizeHttpRequests()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        http.csrf()
+        .disable()
+        .authorizeHttpRequests()
+        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        .requestMatchers("/api/auth/**").permitAll()
+        .anyRequest().authenticated()
+        .and()
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .authenticationProvider(authenticationProvider)
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
          return http.build();
     }

@@ -1,14 +1,9 @@
 package com.fof.server.service;
 
-import com.fof.server.enumeration.Role;
-import com.fof.server.exception.CustomErrorException;
-import com.fof.server.model.entity.ComplainDTO;
 import com.fof.server.repository.*;
 import com.fof.server.enumeration.Status;
-import com.fof.server.model.entity.ChatDTO;
 import com.fof.server.model.entity.UserDTO;
 import com.fof.server.model.normal.DetailsDTO;
-import com.ventureverse.server.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,48 +19,16 @@ import java.util.*;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final EntrepreneurRepository entrepreneurRepository;
-    private final EnterpriseInvestorRepository enterpriseInvestorRepository;
-    private final IndividualInvestorRepository individualInvestorRepository;
     private final AdminRepository adminRepository;
-    private final ComplainRepository complainRepository;
-    private final ChatRepository chatRepository;
 
     public DetailsDTO getDetails(Integer id) {
+        var user = adminRepository.findById(id).orElseThrow();
 
-        if (userRepository.findRoleById(id).equals(Role.ENTREPRENEUR)) {
-            var user = entrepreneurRepository.findById(id).orElseThrow();
-
-            return DetailsDTO.builder()
-                    .firstname(user.getFirstname())
-                    .lastname(user.getLastname())
-                    .email(user.getEmail())
-                    .build();
-        } else if (userRepository.findRoleById(id).equals(Role.ENTERPRISE_INVESTOR)) {
-
-            var user = enterpriseInvestorRepository.findById(id).orElseThrow();
-
-            return DetailsDTO.builder()
-                    .businessName(user.getBusinessName())
-                    .build();
-        } else if (userRepository.findRoleById(id).equals(Role.INDIVIDUAL_INVESTOR)) {
-
-            var user = individualInvestorRepository.findById(id).orElseThrow();
-
-            return DetailsDTO.builder()
-                    .firstname(user.getFirstname())
-                    .lastname(user.getLastname())
-                    .email(user.getEmail())
-                    .build();
-        } else {
-            var user = adminRepository.findById(id).orElseThrow();
-
-            return DetailsDTO.builder()
-                    .firstname(user.getFirstname())
-                    .lastname(user.getLastname())
-                    .email(user.getEmail())
-                    .build();
-        }
+        return DetailsDTO.builder()
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .build();
     }
 
     public List<Map<String, String>> getUsers() {
@@ -132,89 +95,6 @@ public class UserService {
         }
 
         return userMap;
-    }
-
-    public List<Map<String, String>> getTopcomplains() {
-        List<ComplainDTO> complains = complainRepository.findAll();
-        List<Map<String, String>> complainMap = new ArrayList<>();
-        //sort complains by date
-        for (ComplainDTO complain : complains) {
-            String complainDate;
-            if (complain.getDate() != null) {
-                complainDate = complain.getDate();
-            } else {
-                complainDate = "null";
-            }
-            if (complain.getUserId().getRole().equals(Role.ENTREPRENEUR)) {
-                var user = entrepreneurRepository.findById(complain.getUserId().getId()).orElseThrow();
-                complainMap.add(Map.of(
-                        "complainUser", user.getFirstname() + " " + user.getLastname(),
-                        "id",(complain.getUserId().getId()).toString(),
-                        "userRole","Entrepreneur",
-                        "complainDate", complainDate,
-                        "complainStatus", complain.getComplainType().toString(),
-                        "complainDescription", complain.getDescription()
-                ));
-            } else if (complain.getUserId().getRole().equals(Role.ENTERPRISE_INVESTOR)) {
-                var user = enterpriseInvestorRepository.findById(complain.getUserId().getId()).orElseThrow();
-                complainMap.add(Map.of(
-                        "complainUser", user.getBusinessName(),
-                        "id",(complain.getUserId().getId()).toString(),
-                        "userRole","Enterprise Investor",
-                        "complainDate", complainDate,
-                        "complainStatus", complain.getComplainType().toString(),
-                        "complainDescription", complain.getDescription()
-                ));
-            } else if (complain.getUserId().getRole().equals(Role.INDIVIDUAL_INVESTOR)) {
-                var user = individualInvestorRepository.findById(complain.getUserId().getId()).orElseThrow();
-                complainMap.add(Map.of(
-                        "complainUser", user.getFirstname() + " " + user.getLastname(),
-                        "id",(complain.getUserId().getId()).toString(),
-                        "userRole","Individual Investor",
-                        "complainDate", complainDate,
-                        "complainStatus", complain.getComplainType().toString(),
-                        "complainDescription", complain.getDescription()
-                ));
-            }
-        }
-        return complainMap;
-    }
-
-    public List<DetailsDTO> getChats(Integer id) {
-        var user = userRepository.findById(id).orElseThrow(() -> new CustomErrorException("User not found"));
-        List<ChatDTO> Chats = chatRepository.findBySenderReceiver(user);
-
-        List<DetailsDTO> Details = new ArrayList<>();
-
-        for (ChatDTO Chat : Chats) {
-
-            String rootDirectory = System.getProperty("user.dir");
-            String profileUploadPath = rootDirectory + "/src/main/resources/static/uploads/images/profileImages";
-            String profileImage;
-
-            if (Objects.equals(Chat.getSender().getId(), id)) {
-                profileImage = Chat.getSender().getProfileImage();
-            } else {
-                profileImage = Chat.getReceiver().getProfileImage();
-            }
-
-            Path imagePath = Paths.get(profileUploadPath, profileImage);
-
-            try {
-                Details.add(DetailsDTO.builder()
-                        .sender(Chat.getSender())
-                        .receiver(Chat.getReceiver())
-                        .roomOwnerImage(Files.readAllBytes(imagePath))
-                        .message(Chat.getMessage())
-                        .timestamp(Chat.getTimestamp())
-                        .type(Chat.getType())
-                        .status(Chat.getStatus())
-                        .build());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-            return Details;
     }
 
     public byte[] getProfileImage(Integer id) {
