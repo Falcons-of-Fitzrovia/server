@@ -8,19 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'temurin'  # Adjust if you need a different distribution
-      - name: Check and set execute permission for mvnw
-        run: |
-          # Check if execute permission is set
-          if [ ! -x "./mvnw" ]; then
-            echo "Setting execute permission for ./mvnw..."
-            chmod +x ./mvnw
-          fi
-      - name: Build and Package Springboot App
-        run: ./mvnw clean package -DskipTests
-      # Add additional steps for deployment (e.g., upload to artifact repository)
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
+      - name: Build with Maven
+        run: ./mvnw clean package --batch-mode -DskipTests -Dhttp.keepAlive=false -f=pom.xml --quiet
